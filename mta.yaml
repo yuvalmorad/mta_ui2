@@ -1,0 +1,56 @@
+_schema-version: "3.1"
+ID: mta_ui2
+description: A simple CAP project.
+version: 1.0.0
+modules:
+- name: mta_ui2-app-content
+  type: com.sap.application.content
+  path: .
+  requires:
+  - name: mta_ui2-repo-host
+    parameters:
+      content-target: true
+  build-parameters:
+    build-result: resources
+    requires:
+    - artifacts:
+      - nsexternalui2.zip
+      name: nsexternalui2
+      target-path: resources/
+- name: nsexternalui2
+  type: html5
+  path: externalui2
+  build-parameters:
+    build-result: dist
+    builder: custom
+    commands:
+    - npm install
+    - npm run build:cf
+    supported-platforms: []
+resources:
+- name: mta_ui2-repo-host
+  type: org.cloudfoundry.managed-service
+  parameters:
+    service: html5-apps-repo
+    service-name: mta_ui2-html5-srv
+    service-plan: app-host
+- name: mta_ui2_html_repo_runtime
+  type: org.cloudfoundry.managed-service
+  parameters:
+    service: html5-apps-repo
+    service-plan: app-runtime
+- name: uaa_mta_ui2
+  type: org.cloudfoundry.managed-service
+  parameters:
+    path: ./xs-security.json
+    service: xsuaa
+    service-name: mta_ui2-xsuaa-service
+    service-plan: application
+parameters:
+  deploy_mode: html5-repo
+  enable-parallel-deployments: true
+build-parameters:
+  before-all:
+  - builder: custom
+    commands:
+    - npm install
